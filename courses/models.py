@@ -1,6 +1,23 @@
+from django.contrib.auth.models import User
 from django.db import models, transaction
 from django.db.models import Max
+from django.utils.text import slugify
 
+
+class Tag(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    slug = models.SlugField(max_length=50, unique=True, blank=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
 
 class Course(models.Model):
     title = models.CharField(max_length=200)
@@ -8,6 +25,18 @@ class Course(models.Model):
     price = models.DecimalField(max_digits=8, decimal_places=2)
     date_start = models.DateField()
     date_end = models.DateField()
+
+    tags = models.ManyToManyField(
+        Tag,
+        related_name='courses',
+        blank=True,
+    )
+
+    owner = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='courses',
+    )
 
     class Meta:
         ordering = ['-date_start']
