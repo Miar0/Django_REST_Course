@@ -1,8 +1,8 @@
 # Course Platform API
 
-REST API сервіс для управління курсами, тегами та уроками на базі Django та Django REST Framework. Реалізовано повний CRUD через ViewSets, фільтрацію, пошук, пагінацію та розмежування прав доступу.
+A REST API service for managing courses, tags, and lessons built with Django and Django REST Framework. Features full CRUD operations via ViewSets, query filtering, search, pagination, and object-level permission control.
 
-## Вимоги та стек
+## Requirements & Tech Stack
 
 - Python 3.12+
 - Django 6+
@@ -13,71 +13,76 @@ REST API сервіс для управління курсами, тегами �
 
 ---
 
-## Локальний запуск проєкту
+## Local Project Setup
 
-1. Клонувати репозиторій та перейти в робочу директорію:
+1. Clone the repository and navigate into the project directory:
    ```bash
-   git clone https://github.com/Miar0/Django_REST_Course.git
+   git clone [https://github.com/Miar0/Django_REST_Course.git](https://github.com/Miar0/Django_REST_Course.git)
    cd Django_REST_Course
    ```
 
-2. Створити та активувати віртуальне середовище за допомогою `uv`:
+2. Create and activate a virtual environment using `uv`:
    ```bash
    uv venv
-   source .venv/bin/activate  # Для Windows: .venv\Scripts\activate
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
    ```
 
-3. Встановити залежності:
+3. Install project dependencies:
    ```bash
    uv pip install -r requirements.txt
    ```
 
-4. Створити файл конфігурації `.env` на основі прикладу:
+4. Create the `.env` configuration file based on the provided template:
    ```bash
    cp .env.example .env
    ```
 
-5. Виконати міграції:
+5. Apply database migrations:
    ```bash
    python manage.py migrate
    ```
 
-6. Наповнити базу початковими тестовими даними за допомогою команди `seed`:
+6. Populate the database with initial sample data using the custom `seed` command:
    ```bash
    python manage.py seed
    ```
 
-7. Запустити локальний сервер розробки:
+7. Start the local development server:
    ```bash
    python manage.py runserver
    ```
 
+8. Run automated tests (optional):
+   ```bash
+   python manage.py test courses
+   ```
+
 ---
 
-## Таблиця ендпоінтів API
+## API Endpoints Table
 
-| Метод | Адреса | Що робить | Хто може звертатися |
+| Method | Endpoint | Description | Permissions |
 |---|---|---|---|
-| GET | `/api/courses/` | Отримання списку курсів (підтримує фільтри, пошук та пагінацію) | Усі |
-| POST | `/api/courses/` | Створення нового курсу | Авторизовані користувачі |
-| GET | `/api/courses/<id>/` | Детальна інформація про курс | Усі |
-| PUT | `/api/courses/<id>/` | Повне оновлення курсу | Тільки автор (owner) або адмін |
-| PATCH | `/api/courses/<id>/` | Часткове оновлення курсу | Тільки автор (owner) або адмін |
-| DELETE | `/api/courses/<id>/` | Видалення курсу | Тільки автор (owner) або адмін |
-| GET | `/api/courses/free/` | Список усіх безкоштовних курсів (`price == 0`) | Усі |
-| GET | `/api/tags/` | Перегляд списку доступних тегів (довідник) | Усі (read-only) |
-| GET | `/api/tags/<id>/` | Перегляд деталей конкретного тегу | Усі (read-only) |
-| GET | `/api/lessons/` | Отримання списку уроків (фільтри за `course`, `order`) | Усі |
-| POST | `/api/lessons/` | Додавання нового уроку до курсу | Авторизовані користувачі |
-| GET | `/api/lessons/<id>/` | Детальна інформація про урок | Усі |
-| PATCH/PUT | `/api/lessons/<id>/` | Редагування уроку | Тільки власник курсу або адмін |
-| DELETE | `/api/lessons/<id>/` | Видалення уроку | Тільки власник курсу або адмін |
+| GET | `/api/courses/` | Retrieve a list of courses (supports filtering, search, and pagination) | AllowAny |
+| POST | `/api/courses/` | Create a new course | IsAuthenticated |
+| GET | `/api/courses/<id>/` | Retrieve course details | AllowAny |
+| PUT | `/api/courses/<id>/` | Full update of a course | Owner or Admin |
+| PATCH | `/api/courses/<id>/` | Partial update of a course | Owner or Admin |
+| DELETE | `/api/courses/<id>/` | Delete a course | Owner or Admin |
+| GET | `/api/courses/free/` | List all free courses (`price == 0`) | AllowAny |
+| GET | `/api/tags/` | List available tags (reference dictionary) | Read-only (AllowAny) |
+| GET | `/api/tags/<id>/` | Retrieve tag details | Read-only (AllowAny) |
+| GET | `/api/lessons/` | Retrieve lessons list (filters by `course`, `order`) | AllowAny |
+| POST | `/api/lessons/` | Add a new lesson to a course | IsAuthenticated |
+| GET | `/api/lessons/<id>/` | Retrieve lesson details | AllowAny |
+| PATCH/PUT | `/api/lessons/<id>/` | Update lesson details | Course Owner or Admin |
+| DELETE | `/api/lessons/<id>/` | Delete a lesson | Course Owner or Admin |
 
 ---
 
-## Параметри фільтрації, пошуку та сортування
+## Filtering, Search, and Ordering
 
-- **Пошук**: `?search=python` (шукає за назвою курсу, описом або назвою тегів).
-- **Фільтрація**: `?tags=1` (фільтрація курсів за конкретним тегом), `?owner=2`.
-- **Сортування**: `?ordering=price` (за зростанням ціни), `?ordering=-date_start` (за спаданням дати початку).
-- **Пагінація**: `?page=2` (за замовчуванням 10 елементів на сторінку).
+- **Search**: `?search=python` (searches across course title, description, and related tag names).
+- **Filtering**: `?tags=1` (filter courses by tag ID), `?owner=2`.
+- **Ordering**: `?ordering=price` (ascending by price), `?ordering=-date_start` (descending by start date).
+- **Pagination**: `?page=2` (default page size is set to 10 items).
