@@ -11,59 +11,79 @@ A REST API service for managing courses, tags, and lessons built with Django and
 - django-filter
 - django-environ
 - Docker & Docker Compose
-- uv / pip
+- uv (Package & Project Management via `pyproject.toml`)
 
 ---
 
 ## Local Project Setup
 
-1. Clone the repository and navigate into the project directory:
-   ```bash
-   git clone [https://github.com/Miar0/Django_REST_Course.git](https://github.com/Miar0/Django_REST_Course.git)
-   cd Django_REST_Course
-   ```
+### 1. Clone the Repository
+```bash
+git clone [https://github.com/Miar0/Django_REST_Course.git](https://github.com/Miar0/Django_REST_Course.git)
+cd Django_REST_Course
+```
 
-2. Create and activate a virtual environment using `uv`:
-   ```bash
-   uv venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-   ```
+### 2. Check or Install `uv`
+Verify whether `uv` is already installed on your system:
+```bash
+uv --version
+```
 
-3. Install project dependencies:
-   ```bash
-   uv pip install -r requirements.txt
-   ```
+If it is not installed, install it using the official standalone installer:
 
-4. Create the `.env` configuration file based on the provided template:
-   ```bash
-   cp .env.example .env
-   ```
+- **macOS & Linux:**
+  ```bash
+  curl -LsSf [https://astral.sh/uv/install.sh](https://astral.sh/uv/install.sh) | sh
+  ```
 
-5. Apply database migrations:
-   ```bash
-   python manage.py migrate
-   ```
+- **Windows (PowerShell):**
+  ```powershell
+  powershell -ExecutionPolicy ByPass -c "irm [https://astral.sh/uv/install.ps1](https://astral.sh/uv/install.ps1) | iex"
+  ```
 
-6. Populate the database with initial sample data using the custom `seed` command:
-   ```bash
-   python manage.py seed
-   ```
+> *Note: After installation, restart your terminal or source your shell profile so that `uv` is added to your `PATH`.*
 
-7. Start the local development server:
-   ```bash
-   python manage.py runserver
-   ```
+### 3. Install Dependencies & Set Up Environment
+`uv` automatically creates and manages the virtual environment (`.venv`) and installs all dependencies specified in `pyproject.toml`:
 
-8. Run automated tests (optional):
-   ```bash
-   python manage.py test courses
-   ```
+```bash
+uv sync
+```
+
+You can activate the virtual environment manually (`source .venv/bin/activate` on macOS/Linux or `.venv\Scripts\activate` on Windows), or simply run commands prefixed with `uv run`.
+
+### 4. Environment Configuration
+Create the `.env` configuration file based on the provided template:
+```bash
+cp .env.example .env
+```
+
+### 5. Apply Database Migrations
+```bash
+uv run python manage.py migrate
+```
+
+### 6. (Optional) Populate Database with Sample Data
+Populate the database with initial dummy records using the custom `seed` management command:
+```bash
+uv run python manage.py seed
+```
+
+### 7. Start the Development Server
+```bash
+uv run python manage.py runserver
+```
+
+### 8. Run Automated Tests
+```bash
+uv run python manage.py test courses
+```
 
 ---
 
 ## Running with Docker
 
-The project includes pre-configured `Dockerfile` and `docker-compose.yaml` files for containerized execution.
+The project includes a pre-configured `Dockerfile` and `docker-compose.yaml` for containerized development.
 
 1. Ensure your `.env` file exists:
    ```bash
@@ -74,14 +94,14 @@ The project includes pre-configured `Dockerfile` and `docker-compose.yaml` files
    ```bash
    docker compose up --build
    ```
-   *(Database migrations will apply automatically upon startup).*
+   *(Database migrations are applied automatically on startup).*
 
 3. (Optional) Populate the database with initial seed data:
    ```bash
    docker compose exec web python manage.py seed
    ```
 
-4. (Optional) Run tests inside the container:
+4. (Optional) Run the test suite inside the running container:
    ```bash
    docker compose exec web python manage.py test courses
    ```
@@ -95,8 +115,8 @@ The application will be accessible at: `http://127.0.0.1:8000/api/`
 Authentication is handled via JSON Web Tokens (`djangorestframework-simplejwt`).
 
 To access protected endpoints:
-1. Obtain tokens by sending credentials to `/api/token/`.
-2. Include the access token in the `Authorization` request header:
+1. Obtain token pairs by posting user credentials to `/api/token/`.
+2. Include the access token in the `Authorization` HTTP header:
    ```http
    Authorization: Bearer <your_access_token>
    ```
