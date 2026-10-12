@@ -26,7 +26,7 @@ class CoursePermissionsAndValidationTests(APITestCase):
 
     def test_anonymous_cannot_edit(self):
         response = self.client.patch(self.url, {'price': '50.00'})
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_other_user_cannot_edit(self):
         self.client.force_authenticate(user=self.other_user)
@@ -52,3 +52,13 @@ class CoursePermissionsAndValidationTests(APITestCase):
         response = self.client.patch(self.url, {'date_end': invalid_end_date})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('non_field_errors', response.data)
+
+    def test_other_user_cannot_create_lesson_in_foreign_course(self):
+        self.client.force_authenticate(user=self.other_user)
+        payload = {
+            'title': 'Test Lesson',
+            'description': 'Lesson description',
+            'course': self.course.id,
+        }
+        response = self.client.post('/api/lessons/', payload)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

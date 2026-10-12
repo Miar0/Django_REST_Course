@@ -1,4 +1,4 @@
-from rest_framework import permissions, viewsets
+from rest_framework import permissions, viewsets, exceptions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -69,6 +69,14 @@ class LessonViewSet(viewsets.ModelViewSet):
         if self.action in ['create', 'update', 'partial_update']:
             return LessonCreateUpdateSerializer
         return LessonSerializer
+
+    def perform_create(self, serializer):
+        course = serializer.validated_data.get('course')
+        if course.owner != self.request.user and not self.request.user.is_staff:
+            raise exceptions.PermissionDenied(
+                'You cannot create lessons for another user\'s course.'
+            )
+        serializer.save()
 
 class MeView(APIView):
     permission_classes = [permissions.IsAuthenticated]
